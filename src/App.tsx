@@ -12,6 +12,7 @@ import { ProjectView } from './routes/ProjectView'
 import { NowPanel } from './components/panels/NowPanel'
 import { GroomSheet } from './components/panels/GroomSheet'
 import { useAddGoal } from './hooks/useGk'
+import { Settings } from './components/Settings'
 
 // ---------------------------------------------------------------------------
 // Coming-soon placeholder panel (now / groom / settings)
@@ -99,8 +100,7 @@ export default function App() {
       case 'groom':
         return <GroomSheet />
       case 'settings':
-        // Task 9 — settings panel
-        return <ComingSoon label="Settings" />
+        return <Settings />
     }
   }
 
