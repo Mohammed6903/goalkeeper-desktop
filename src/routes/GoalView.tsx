@@ -5,7 +5,7 @@
  * of all open tasks belonging to those projects (sourced from useScore() for
  * urgency-bearing tasks, filtered by project membership).
  *
- * Header actions: Mark done, Decompose (Task 8.4 placeholder), + New task.
+ * Header actions: Mark done, Decompose, + New task.
  */
 
 import { useMemo, useState } from 'react'
@@ -150,7 +150,7 @@ export function GoalView({
             >
               + New task
             </button>
-            {/* Decompose — Task 8.4 */}
+            {/* Decompose */}
             <button
               onClick={() => setDecomposeOpen(true)}
               disabled={isDone}
@@ -222,7 +222,7 @@ export function GoalView({
         <TaskList tasks={goalTasks} title="Tasks" onEdit={onEdit} />
       </div>
 
-      {/* ── Decompose sheet (Task 8.4) ── */}
+      {/* ── Decompose sheet ── */}
       <DecomposeSheet
         open={decomposeOpen}
         onOpenChange={setDecomposeOpen}

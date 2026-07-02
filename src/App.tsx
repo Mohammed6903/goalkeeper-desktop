@@ -16,7 +16,7 @@ import { useAddGoal } from './hooks/useGk'
 import { Settings } from './components/Settings'
 
 // ---------------------------------------------------------------------------
-// Coming-soon placeholder panel (now / groom / settings)
+// Fallback placeholder for unrecognised routes
 // ---------------------------------------------------------------------------
 
 function ComingSoon({ label }: { label: string }) {

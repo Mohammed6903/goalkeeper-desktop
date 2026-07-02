@@ -190,7 +190,7 @@ export function GroomSheet() {
           for (const title of subs) {
             await addTask.mutateAsync({
               title,
-              opts: { projectId: task.project_id ?? null },
+              opts: { projectId: task.project_id ?? null, priority: task.priority },
             })
           }
           await deleteTask.mutateAsync(task.id)

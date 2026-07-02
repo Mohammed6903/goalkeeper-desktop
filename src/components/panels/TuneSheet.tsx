@@ -140,8 +140,12 @@ export function TuneSheet({
       toast.error('Config not loaded yet')
       return
     }
+    if (!(delta.name in config.urgency)) {
+      toast.error(`Unknown coefficient "${delta.name}" — skipped`)
+      return
+    }
     const parsed = num(delta.new_value)
-    if (parsed === null) {
+    if (parsed === null || !isFinite(parsed)) {
       toast.error(`Invalid value for ${delta.name}: "${delta.new_value}"`)
       return
     }

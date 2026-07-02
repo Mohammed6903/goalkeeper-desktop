@@ -1,11 +1,11 @@
 /**
- * Settings screen — Task 8.5
+ * Settings screen
  *
  * Sections:
  *   1. Appearance — theme toggle (Mocha / Latte)
  *   2. Gemini — API key management + model name inputs
  *   3. Urgency coefficients — all 13 fields, dirty-aware form, reset to defaults, Tune entry
- *   4. Data — DB location note + Import placeholder
+ *   4. Data — DB location note + legacy import
  */
 
 import { useState, useEffect, useCallback } from 'react'
