@@ -2,7 +2,8 @@
   "name": "goalkeeper-desktop",
   "version": "1.0.0",
   "type": "module",
-  "description": "",
+  "description": "A desktop app for goal tracking and productivity",
+  "homepage": "https://garageuniversity.app",
   "main": "out/main/main.js",
   "scripts": {
     "dev": "electron-vite dev",
@@ -12,7 +13,7 @@
     "dist": "electron-vite build && electron-builder"
   },
   "keywords": [],
-  "author": "",
+  "author": "Mohammed <shorupan@garageuniversity.app>",
   "license": "ISC",
   "packageManager": "pnpm@10.30.1",
   "devDependencies": {
