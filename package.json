@@ -1,6 +1,7 @@
 {
   "name": "goalkeeper-desktop",
   "version": "1.0.0",
+  "type": "module",
   "description": "",
   "main": "out/main/main.js",
   "scripts": {
