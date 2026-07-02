@@ -35,11 +35,9 @@ jobs:
         run: pnpm test
 
       # Linux → AppImage + deb; Windows → NSIS. electron-builder infers targets
-      # from electron-builder.yml per-OS. GH_TOKEN avoids publish; --publish never.
+      # from electron-builder.yml per-OS. --publish never baked into the dist script.
       - name: Package
         run: pnpm run dist
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload installers
         uses: actions/upload-artifact@v4

@@ -17,10 +17,15 @@ linux:
   target:
     - AppImage
     - deb
+  icon: build/icon.png
   category: Utility
+  synopsis: Goals, projects and tasks with a deterministic urgency engine
   maintainer: Mohammed <shorupan@garageuniversity.app>
+  desktop:
+    StartupWMClass: GoalKeeper
 
 win:
+  icon: build/icon.png
   target:
     - nsis
 
