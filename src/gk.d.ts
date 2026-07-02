@@ -31,6 +31,11 @@ export interface GkApi {
   runTune(): Promise<TuneResult>
   runDecompose(goalId: string): Promise<DraftPlan>
   importLegacy(): Promise<null | { goals: number; projects: number; tasks: number; events: number; skipped: number }>
+  setMongoUri(v: string): Promise<void>
+  getMongoUriStatus(): Promise<boolean>
+  testCloud(): Promise<boolean>
+  backupCloud(): Promise<{ goals: number; projects: number; tasks: number; events: number }>
+  restoreCloud(): Promise<{ goals: number; projects: number; tasks: number; events: number; skipped: number }>
 }
 
 declare global {

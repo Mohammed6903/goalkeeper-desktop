@@ -29,4 +29,9 @@ contextBridge.exposeInMainWorld('gk', {
   runTune: () => ipcRenderer.invoke('llm:tune'),
   runDecompose: (goalId: string) => ipcRenderer.invoke('llm:decompose', goalId),
   importLegacy: () => ipcRenderer.invoke('data:import'),
+  setMongoUri: (v: string) => ipcRenderer.invoke('cloud:setUri', v),
+  getMongoUriStatus: () => ipcRenderer.invoke('cloud:uriStatus'),
+  testCloud: () => ipcRenderer.invoke('cloud:test'),
+  backupCloud: () => ipcRenderer.invoke('cloud:backup'),
+  restoreCloud: () => ipcRenderer.invoke('cloud:restore'),
 })

@@ -10,11 +10,12 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { toast } from 'sonner'
-import { Sun, Moon, Key, Brain, Sliders, Database, TrendingUp, RotateCcw, Save, HardDrive } from 'lucide-react'
+import { Sun, Moon, Key, Brain, Sliders, Database, TrendingUp, RotateCcw, Save, HardDrive, Cloud, Loader2 } from 'lucide-react'
 import { useConfig, useSaveConfig } from '../hooks/useGk'
 import { defaultUrgencyConfig } from '@core/config'
 import type { UrgencyConfig, AppConfig } from '@core/config'
 import { TuneSheet } from './panels/TuneSheet'
+import { queryClient } from '../lib/queryClient'
 
 // ---------------------------------------------------------------------------
 // Coefficient metadata — human labels for all 13 fields
@@ -583,6 +584,254 @@ function DataSection() {
 }
 
 // ---------------------------------------------------------------------------
+// CloudBackupSection
+// ---------------------------------------------------------------------------
+
+function CloudBackupSection() {
+  const [uri, setUri] = useState('')
+  const [uriStatus, setUriStatus] = useState<boolean | null>(null)
+  const [saving, setSaving] = useState(false)
+  const [testing, setTesting] = useState(false)
+  const [backingUp, setBackingUp] = useState(false)
+  const [restoring, setRestoring] = useState(false)
+  const [lastBackupAt, setLastBackupAt] = useState<string | null>(
+    () => localStorage.getItem('gk.lastBackupAt'),
+  )
+  const [confirmRestore, setConfirmRestore] = useState(false)
+
+  const fetchStatus = useCallback(async () => {
+    try {
+      const status = await window.gk.getMongoUriStatus()
+      setUriStatus(status)
+    } catch {
+      setUriStatus(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    void fetchStatus()
+  }, [fetchStatus])
+
+  async function handleSaveUri() {
+    setSaving(true)
+    try {
+      await window.gk.setMongoUri(uri)
+      toast.success('MongoDB URI saved to OS keychain')
+      setUri('')
+      await fetchStatus()
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : String(err))
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  async function handleClearUri() {
+    setSaving(true)
+    try {
+      await window.gk.setMongoUri('')
+      toast.success('MongoDB URI cleared')
+      setUri('')
+      await fetchStatus()
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : String(err))
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  async function handleTest() {
+    setTesting(true)
+    try {
+      const ok = await window.gk.testCloud()
+      if (ok) {
+        toast.success('Connection successful')
+      } else {
+        toast.error('Connection failed — check your URI')
+      }
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : String(err))
+    } finally {
+      setTesting(false)
+    }
+  }
+
+  async function handleBackup() {
+    setBackingUp(true)
+    try {
+      const result = await window.gk.backupCloud()
+      const now = new Date().toISOString()
+      localStorage.setItem('gk.lastBackupAt', now)
+      setLastBackupAt(now)
+      toast.success(
+        `Backed up ${result.tasks} task(s), ${result.goals} goal(s), ${result.projects} project(s), ${result.events} event(s)`,
+      )
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : String(err))
+    } finally {
+      setBackingUp(false)
+    }
+  }
+
+  async function handleRestore() {
+    setConfirmRestore(false)
+    setRestoring(true)
+    try {
+      const result = await window.gk.restoreCloud()
+      await queryClient.invalidateQueries()
+      toast.success(
+        `Restored ${result.goals} goal(s), ${result.projects} project(s), ${result.tasks} task(s), ${result.events} event(s)` +
+          (result.skipped > 0 ? ` · ${result.skipped} skipped (already exist)` : ''),
+      )
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : String(err))
+    } finally {
+      setRestoring(false)
+    }
+  }
+
+  function formatLastBackup(iso: string): string {
+    try {
+      return new Date(iso).toLocaleString()
+    } catch {
+      return iso
+    }
+  }
+
+  return (
+    <div style={sectionCard}>
+      <h3 style={sectionTitle}>
+        <Cloud size={14} color="var(--ctp-blue)" />
+        Cloud backup (MongoDB)
+      </h3>
+
+      <p style={{ margin: 0, fontSize: 12, color: 'var(--text-dim)', lineHeight: 1.5 }}>
+        Backs up to a MongoDB database (format-compatible with the GoalKeeper CLI).
+        SQLite stays your local source of truth.
+      </p>
+
+      {/* URI status badge */}
+      <div
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: 6,
+          padding: '5px 12px',
+          borderRadius: 99,
+          fontSize: 12,
+          fontWeight: 600,
+          background: uriStatus
+            ? 'color-mix(in srgb, var(--ctp-green) 14%, transparent)'
+            : 'color-mix(in srgb, var(--ctp-red) 10%, transparent)',
+          color: uriStatus ? 'var(--ctp-green)' : 'var(--ctp-red)',
+          border: `1px solid ${uriStatus ? 'color-mix(in srgb, var(--ctp-green) 30%, transparent)' : 'color-mix(in srgb, var(--ctp-red) 25%, transparent)'}`,
+          alignSelf: 'flex-start',
+        }}
+      >
+        {uriStatus === null ? '…' : uriStatus ? '✓ Connection string saved' : 'No URI — cloud backup disabled'}
+      </div>
+
+      {/* URI input */}
+      <div>
+        <label style={labelStyle}>MongoDB connection string</label>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <input
+            type="password"
+            value={uri}
+            onChange={(e) => setUri(e.target.value)}
+            placeholder="mongodb+srv://…"
+            style={{ ...inputStyle, flex: 1 }}
+            onKeyDown={(e) => { if (e.key === 'Enter' && uri) void handleSaveUri() }}
+          />
+          <button
+            style={{ ...btnPrimary, opacity: saving || !uri ? 0.6 : 1, cursor: saving || !uri ? 'not-allowed' : 'pointer' }}
+            disabled={saving || !uri}
+            onClick={() => void handleSaveUri()}
+          >
+            Save
+          </button>
+          <button
+            style={{ ...btnGhost, opacity: saving ? 0.6 : 1, cursor: saving ? 'not-allowed' : 'pointer' }}
+            disabled={saving}
+            onClick={() => void handleClearUri()}
+          >
+            Clear
+          </button>
+        </div>
+        <p style={hintStyle}>Stored encrypted in your OS keychain.</p>
+      </div>
+
+      {/* Action buttons */}
+      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+        {/* Test connection */}
+        <button
+          style={{ ...btnGhost, opacity: !uriStatus || testing ? 0.6 : 1, cursor: !uriStatus || testing ? 'not-allowed' : 'pointer' }}
+          disabled={!uriStatus || testing}
+          onClick={() => void handleTest()}
+        >
+          {testing ? <Loader2 size={12} style={{ animation: 'spin 1s linear infinite' }} /> : null}
+          {testing ? 'Testing…' : 'Test connection'}
+        </button>
+
+        {/* Back up now */}
+        <button
+          style={{ ...btnPrimary, opacity: !uriStatus || backingUp ? 0.6 : 1, cursor: !uriStatus || backingUp ? 'not-allowed' : 'pointer' }}
+          disabled={!uriStatus || backingUp}
+          onClick={() => void handleBackup()}
+        >
+          {backingUp ? <Loader2 size={12} style={{ animation: 'spin 1s linear infinite' }} /> : <Cloud size={12} />}
+          {backingUp ? 'Backing up…' : 'Back up now'}
+        </button>
+
+        {/* Restore from cloud */}
+        {!confirmRestore ? (
+          <button
+            style={{ ...btnGhost, opacity: !uriStatus || restoring ? 0.6 : 1, cursor: !uriStatus || restoring ? 'not-allowed' : 'pointer' }}
+            disabled={!uriStatus || restoring}
+            onClick={() => setConfirmRestore(true)}
+          >
+            {restoring ? <Loader2 size={12} style={{ animation: 'spin 1s linear infinite' }} /> : null}
+            {restoring ? 'Restoring…' : 'Restore from cloud'}
+          </button>
+        ) : (
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+              padding: '6px 12px',
+              background: 'color-mix(in srgb, var(--ctp-yellow) 10%, transparent)',
+              border: '1px solid color-mix(in srgb, var(--ctp-yellow) 30%, transparent)',
+              borderRadius: 7,
+              fontSize: 12,
+              color: 'var(--text)',
+            }}
+          >
+            <span>Restore merges cloud data into your local tasks (won't delete anything). Continue?</span>
+            <button
+              style={{ ...btnPrimary, background: 'var(--ctp-yellow)', color: 'var(--bg)' }}
+              onClick={() => void handleRestore()}
+            >
+              Yes, restore
+            </button>
+            <button style={btnGhost} onClick={() => setConfirmRestore(false)}>
+              Cancel
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Last backup timestamp */}
+      {lastBackupAt && (
+        <p style={{ ...hintStyle, marginTop: 0 }}>
+          Last backup: {formatLastBackup(lastBackupAt)}
+        </p>
+      )}
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
 // Settings (exported)
 // ---------------------------------------------------------------------------
 
@@ -632,6 +881,7 @@ export function Settings() {
       <GeminiSection config={config} saveConfig={saveConfig} />
       <UrgencySection config={config} saveConfig={saveConfig} />
       <DataSection />
+      <CloudBackupSection />
     </div>
   )
 }

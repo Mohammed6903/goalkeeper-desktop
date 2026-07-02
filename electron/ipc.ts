@@ -3,7 +3,8 @@ import { join } from 'node:path'
 import { SqliteStore } from '@core/store/sqlite'
 import { Service } from '@core/service'
 import { ConfigStore } from '@core/config-store'
-import { setApiKey, hasApiKey, readApiKey } from './secret'
+import { setApiKey, hasApiKey, readApiKey, setMongoUri, hasMongoUri, readMongoUri } from './secret'
+import { mongoBackend, testConnection, backupToCloud, restoreFromCloud } from '@core/cloud/mongo-backup'
 import { GeminiClient } from '@core/llm/client'
 import { runWhatNow } from '@core/llm/whatnow'
 import { runGroom } from '@core/llm/groom'
@@ -54,6 +55,25 @@ export function registerIpc(): void {
     const g = svc.getGoal(goalId)
     if (!g) throw new Error('no such goal')
     return runDecompose(svc, makeClient(), g)
+  })
+
+  // Cloud backup — MongoDB URI storage + backup/restore via cloud:* channels
+  ipcMain.handle('cloud:setUri', (_e, v: string) => setMongoUri(v ?? ''))
+  ipcMain.handle('cloud:uriStatus', () => hasMongoUri())
+  ipcMain.handle('cloud:test', async () => {
+    const uri = readMongoUri()
+    if (!uri) return false
+    return testConnection(mongoBackend(uri))
+  })
+  ipcMain.handle('cloud:backup', async () => {
+    const uri = readMongoUri()
+    if (!uri) throw new Error('No MongoDB URI set')
+    return backupToCloud(store, mongoBackend(uri))
+  })
+  ipcMain.handle('cloud:restore', async () => {
+    const uri = readMongoUri()
+    if (!uri) throw new Error('No MongoDB URI set')
+    return restoreFromCloud(store, mongoBackend(uri))
   })
 
   // Legacy data import — opens a file picker and migrates from a legacy SQLite DB
