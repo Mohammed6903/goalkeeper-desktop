@@ -4,11 +4,12 @@
  */
 
 import { z } from 'zod'
-import { randomUUID } from 'node:crypto'
 
 // Use factory functions so each .parse() call gets a fresh value (zod v4 evaluates
 // function defaults lazily — on every parse — unlike static value defaults).
-export const genId = () => randomUUID().replace(/-/g, '').slice(0, 8)
+// `globalThis.crypto` is the Web Crypto API, present in both Node 18+ and the Electron
+// renderer, so this module stays importable from browser code (no `node:crypto`).
+export const genId = () => globalThis.crypto.randomUUID().replace(/-/g, '').slice(0, 8)
 export const nowIso = () => new Date().toISOString()
 
 export const Priority = {
