@@ -116,6 +116,10 @@ export class SqliteStore implements Store {
     return (this.db.prepare("SELECT v FROM meta WHERE k='seq'").get() as any).v
   }
 
+  ensureSeqAtLeast(n: number): void {
+    this.db.prepare("UPDATE meta SET v=? WHERE k='seq' AND v<?").run(n, n)
+  }
+
   // ── Events ────────────────────────────────────────────────────────────────
 
   logEvent(e: Event): void {

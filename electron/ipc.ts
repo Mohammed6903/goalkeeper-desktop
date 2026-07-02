@@ -1,4 +1,4 @@
-import { ipcMain, app, BrowserWindow } from 'electron'
+import { ipcMain, app, BrowserWindow, dialog } from 'electron'
 import { join } from 'node:path'
 import { SqliteStore } from '@core/store/sqlite'
 import { Service } from '@core/service'
@@ -9,6 +9,7 @@ import { runWhatNow } from '@core/llm/whatnow'
 import { runGroom } from '@core/llm/groom'
 import { runTune } from '@core/llm/tune'
 import { runDecompose } from '@core/llm/decompose'
+import { importLegacy } from '@core/migrate'
 
 export { readApiKey } from './secret'
 
@@ -53,6 +54,17 @@ export function registerIpc(): void {
     const g = svc.getGoal(goalId)
     if (!g) throw new Error('no such goal')
     return runDecompose(svc, makeClient(), g)
+  })
+
+  // Legacy data import — opens a file picker and migrates from a legacy SQLite DB
+  ipcMain.handle('data:import', async () => {
+    const r = await dialog.showOpenDialog({
+      title: 'Import legacy GoalKeeper database',
+      properties: ['openFile'],
+      filters: [{ name: 'SQLite DB', extensions: ['db', 'sqlite'] }],
+    })
+    if (r.canceled || !r.filePaths[0]) return null
+    return importLegacy(r.filePaths[0], store)
   })
 
   // Window controls — need the event to resolve the sender's window

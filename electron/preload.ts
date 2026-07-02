@@ -28,4 +28,5 @@ contextBridge.exposeInMainWorld('gk', {
   runGroom: () => ipcRenderer.invoke('llm:groom'),
   runTune: () => ipcRenderer.invoke('llm:tune'),
   runDecompose: (goalId: string) => ipcRenderer.invoke('llm:decompose', goalId),
+  importLegacy: () => ipcRenderer.invoke('data:import'),
 })

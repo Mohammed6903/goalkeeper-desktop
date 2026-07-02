@@ -30,6 +30,7 @@ export interface GkApi {
   runGroom(): Promise<GroomResult>
   runTune(): Promise<TuneResult>
   runDecompose(goalId: string): Promise<DraftPlan>
+  importLegacy(): Promise<null | { goals: number; projects: number; tasks: number; events: number; skipped: number }>
 }
 
 declare global {
