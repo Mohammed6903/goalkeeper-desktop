@@ -1,5 +1,6 @@
 import type { Goal, Project, Task } from '@core/models'
 import type { AppConfig } from '@core/config'
+import type { WhatNowResult, GroomResult, TuneResult, DraftPlan } from '@core/llm/schemas'
 
 export interface GkApi {
   listGoals(): Promise<Goal[]>
@@ -25,6 +26,10 @@ export interface GkApi {
   closeWindow(): Promise<void>
   setApiKey(v: string): Promise<void>
   getApiKeyStatus(): Promise<boolean>
+  runNow(input: { timeAvailable?: number | null; energy?: string | null }): Promise<WhatNowResult>
+  runGroom(): Promise<GroomResult>
+  runTune(): Promise<TuneResult>
+  runDecompose(goalId: string): Promise<DraftPlan>
 }
 
 declare global {

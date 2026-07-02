@@ -24,4 +24,8 @@ contextBridge.exposeInMainWorld('gk', {
   closeWindow: () => ipcRenderer.invoke('win:close'),
   setApiKey: (v: string) => ipcRenderer.invoke('secret:setKey', v),
   getApiKeyStatus: () => ipcRenderer.invoke('secret:getKeyStatus'),
+  runNow: (input: { timeAvailable?: number | null; energy?: string | null }) => ipcRenderer.invoke('llm:now', input),
+  runGroom: () => ipcRenderer.invoke('llm:groom'),
+  runTune: () => ipcRenderer.invoke('llm:tune'),
+  runDecompose: (goalId: string) => ipcRenderer.invoke('llm:decompose', goalId),
 })

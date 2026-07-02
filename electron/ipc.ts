@@ -3,7 +3,12 @@ import { join } from 'node:path'
 import { SqliteStore } from '@core/store/sqlite'
 import { Service } from '@core/service'
 import { ConfigStore } from '@core/config'
-import { setApiKey, hasApiKey } from './secret'
+import { setApiKey, hasApiKey, readApiKey } from './secret'
+import { GeminiClient } from '@core/llm/client'
+import { runWhatNow } from '@core/llm/whatnow'
+import { runGroom } from '@core/llm/groom'
+import { runTune } from '@core/llm/tune'
+import { runDecompose } from '@core/llm/decompose'
 
 export { readApiKey } from './secret'
 
@@ -12,6 +17,10 @@ export function registerIpc(): void {
   const store = new SqliteStore(join(app.getPath('userData'), 'goalkeeper.db'))
   let svc = new Service(store, cfg.get().urgency)
   const h = (ch: string, fn: (...a: any[]) => any) => ipcMain.handle(ch, (_e, ...a) => fn(...a))
+  const makeClient = () => {
+    const g = cfg.get().gemini
+    return new GeminiClient({ apiKey: readApiKey(), model: g.model, fastModel: g.fastModel })
+  }
 
   h('goals:list', () => svc.listGoals())
   h('goals:add', (title: string, o: any) => svc.addGoal(title, o))
@@ -35,6 +44,16 @@ export function registerIpc(): void {
   // Secret / API-key storage — uses safeStorage (OS keychain) via electron/secret.ts
   h('secret:setKey', (value: string) => setApiKey(value))
   h('secret:getKeyStatus', () => hasApiKey())
+
+  // LLM advisory handlers
+  ipcMain.handle('llm:now', (_e, input) => runWhatNow(svc, makeClient(), input ?? {}))
+  ipcMain.handle('llm:groom', () => runGroom(svc, makeClient()))
+  ipcMain.handle('llm:tune', () => runTune(svc, makeClient(), cfg.get().urgency))
+  ipcMain.handle('llm:decompose', async (_e, goalId) => {
+    const g = svc.getGoal(goalId)
+    if (!g) throw new Error('no such goal')
+    return runDecompose(svc, makeClient(), g)
+  })
 
   // Window controls — need the event to resolve the sender's window
   ipcMain.handle('win:minimize', (e) => BrowserWindow.fromWebContents(e.sender)?.minimize())
