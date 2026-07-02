@@ -1,15 +1,90 @@
+import { useState, useCallback } from 'react'
+import type { Task } from '@core/models'
 import { useNav } from './lib/nav'
 import TitleBar from './components/TitleBar'
 import Sidebar from './components/Sidebar'
+import { TaskForm } from './components/TaskForm'
+import { Dashboard } from './routes/Dashboard'
+import { ReadyView } from './routes/ReadyView'
+import { GoalView } from './routes/GoalView'
+import { ProjectView } from './routes/ProjectView'
+
+// ---------------------------------------------------------------------------
+// Coming-soon placeholder panel (now / groom / settings)
+// ---------------------------------------------------------------------------
+
+function ComingSoon({ label }: { label: string }) {
+  return (
+    <div
+      style={{
+        display: 'flex',
+        flex: 1,
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 8,
+        color: 'var(--text-dim)',
+      }}
+    >
+      <span style={{ fontSize: 28, opacity: 0.25 }}>⌛</span>
+      <span style={{ fontSize: 14, fontWeight: 600, textTransform: 'capitalize' }}>{label}</span>
+      <span style={{ fontSize: 12, opacity: 0.55 }}>Coming soon</span>
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// App
+// ---------------------------------------------------------------------------
 
 export default function App() {
   const { view } = useNav()
 
-  // Derive a human-readable label for the placeholder
-  const viewLabel =
-    view.kind === 'goal' || view.kind === 'project'
-      ? `${view.kind} · ${view.id}`
-      : view.kind
+  // ── Global task-form state ──────────────────────────────────────────────
+  const [formOpen, setFormOpen] = useState(false)
+  const [editing, setEditing] = useState<Task | undefined>()
+  const [formProject, setFormProject] = useState<string | null>(null)
+
+  const openEdit = useCallback((task: Task) => {
+    setEditing(task)
+    setFormProject(null)
+    setFormOpen(true)
+  }, [])
+
+  const openNew = useCallback((projectId?: string) => {
+    setEditing(undefined)
+    setFormProject(projectId ?? null)
+    setFormOpen(true)
+  }, [])
+
+  // Clear editing task when dialog closes so stale data doesn't linger
+  function handleFormOpenChange(open: boolean) {
+    setFormOpen(open)
+    if (!open) setEditing(undefined)
+  }
+
+  // ── Routed main area ───────────────────────────────────────────────────
+  function renderMain() {
+    switch (view.kind) {
+      case 'dashboard':
+        return <Dashboard onEdit={openEdit} onNew={openNew} />
+      case 'ready':
+        return <ReadyView onEdit={openEdit} />
+      case 'goal':
+        return <GoalView goalId={view.id} onEdit={openEdit} onNew={openNew} />
+      case 'project':
+        return <ProjectView projectId={view.id} onEdit={openEdit} onNew={openNew} />
+      case 'now':
+        // Task 8.5 — LLM focus view
+        return <ComingSoon label="Now" />
+      case 'groom':
+        // Task 8.4 — grooming view
+        return <ComingSoon label="Groom" />
+      case 'settings':
+        // Task 9 — settings panel
+        return <ComingSoon label="Settings" />
+    }
+  }
 
   return (
     <div
@@ -22,20 +97,21 @@ export default function App() {
       <div className="flex flex-1 overflow-hidden">
         <Sidebar />
 
-        {/* Main content — Task 7.4 replaces this with routed views */}
         <main
           className="flex flex-1 flex-col overflow-auto"
           style={{ background: 'var(--bg)' }}
         >
-          <div
-            className="flex flex-1 items-center justify-center text-sm"
-            style={{ color: 'var(--text-dim)' }}
-          >
-            {/* Task 7.4 replaces this with routed views */}
-            {viewLabel}
-          </div>
+          {renderMain()}
         </main>
       </div>
+
+      {/* Global task form — mounted once at root, controlled by state above */}
+      <TaskForm
+        open={formOpen}
+        onOpenChange={handleFormOpenChange}
+        task={editing}
+        defaultProjectId={formProject}
+      />
     </div>
   )
 }
