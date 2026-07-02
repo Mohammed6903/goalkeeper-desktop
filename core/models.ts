@@ -33,6 +33,7 @@ export const EventKind = {
 
 const priority = z.enum(['high', 'medium', 'low', 'none'])
 const status = z.enum(['pending', 'active', 'done'])
+const eventKind = z.enum(['created', 'started', 'completed', 'modified'])
 
 export const goalSchema = z.object({
   id: z.string().default(() => genId()),
@@ -75,7 +76,7 @@ export const eventSchema = z.object({
   id: z.string().default(() => genId()),
   ts: z.string().default(() => nowIso()),
   task_id: z.string(),
-  kind: z.enum(['created', 'started', 'completed', 'modified']),
+  kind: eventKind,
   urgency_at: z.number().nullable().default(null),
   urgency_rank_at: z.number().int().nullable().default(null), // 1-based rank among ready tasks
   ready_count_at: z.number().int().nullable().default(null),  // size of the ready list
