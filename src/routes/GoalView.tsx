@@ -8,11 +8,12 @@
  * Header actions: Mark done, Decompose (Task 8.4 placeholder), + New task.
  */
 
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { CheckCircle, Sparkles } from 'lucide-react'
 import type { Task } from '@core/models'
 import { useGoals, useProjects, useScore, useCompleteGoal } from '../hooks/useGk'
 import { TaskList } from '../components/TaskList'
+import { DecomposeSheet } from '../components/panels/DecomposeSheet'
 
 // ---------------------------------------------------------------------------
 // Status badge
@@ -59,6 +60,7 @@ export function GoalView({
   const { data: projects = [] } = useProjects(goalId)
   const { data: scoredTasks = [] } = useScore()
   const completeGoal = useCompleteGoal()
+  const [decomposeOpen, setDecomposeOpen] = useState(false)
 
   const goal = goals.find((g) => g.id === goalId)
 
@@ -148,9 +150,11 @@ export function GoalView({
             >
               + New task
             </button>
-            {/* Decompose placeholder — Task 8.4 */}
+            {/* Decompose — Task 8.4 */}
             <button
-              title="Decompose into projects (Task 8.4)"
+              onClick={() => setDecomposeOpen(true)}
+              disabled={isDone}
+              title="Decompose goal into projects and tasks with AI"
               style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -159,12 +163,11 @@ export function GoalView({
                 borderRadius: 7,
                 border: '1px solid var(--border)',
                 background: 'transparent',
-                color: 'var(--text-dim)',
+                color: isDone ? 'var(--text-dim)' : 'var(--ctp-mauve)',
                 fontSize: 12,
-                cursor: 'not-allowed',
-                opacity: 0.5,
+                cursor: isDone ? 'default' : 'pointer',
+                opacity: isDone ? 0.5 : 1,
               }}
-              disabled
             >
               <Sparkles size={13} />
               Decompose
@@ -218,6 +221,13 @@ export function GoalView({
       <div style={{ flex: 1, minHeight: 0 }}>
         <TaskList tasks={goalTasks} title="Tasks" onEdit={onEdit} />
       </div>
+
+      {/* ── Decompose sheet (Task 8.4) ── */}
+      <DecomposeSheet
+        open={decomposeOpen}
+        onOpenChange={setDecomposeOpen}
+        goal={goal}
+      />
     </div>
   )
 }

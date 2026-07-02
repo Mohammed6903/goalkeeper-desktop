@@ -9,6 +9,8 @@ import { Dashboard } from './routes/Dashboard'
 import { ReadyView } from './routes/ReadyView'
 import { GoalView } from './routes/GoalView'
 import { ProjectView } from './routes/ProjectView'
+import { NowPanel } from './components/panels/NowPanel'
+import { GroomSheet } from './components/panels/GroomSheet'
 import { useAddGoal } from './hooks/useGk'
 
 // ---------------------------------------------------------------------------
@@ -93,11 +95,9 @@ export default function App() {
       case 'project':
         return <ProjectView projectId={view.id} onEdit={openEdit} onNew={openNew} />
       case 'now':
-        // Task 8.5 — LLM focus view
-        return <ComingSoon label="Now" />
+        return <NowPanel />
       case 'groom':
-        // Task 8.4 — grooming view
-        return <ComingSoon label="Groom" />
+        return <GroomSheet />
       case 'settings':
         // Task 9 — settings panel
         return <ComingSoon label="Settings" />
