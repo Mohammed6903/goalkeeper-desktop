@@ -1,4 +1,4 @@
-import { ipcMain, app, BrowserWindow, dialog } from 'electron'
+import { ipcMain, app, BrowserWindow, dialog, screen } from 'electron'
 import { join } from 'node:path'
 import { SqliteStore } from '@core/store/sqlite'
 import { Service } from '@core/service'
@@ -89,9 +89,20 @@ export function registerIpc(): void {
 
   // Window controls — need the event to resolve the sender's window
   ipcMain.handle('win:minimize', (e) => BrowserWindow.fromWebContents(e.sender)?.minimize())
+  // Many Linux WMs ignore native maximize() on frameless windows, so toggle the
+  // window bounds against the display work area for a reliable result everywhere.
+  const maximizeRestore = new WeakMap<BrowserWindow, Electron.Rectangle>()
   ipcMain.handle('win:maximize', (e) => {
     const w = BrowserWindow.fromWebContents(e.sender)
-    if (w) w.isMaximized() ? w.unmaximize() : w.maximize()
+    if (!w) return
+    const saved = maximizeRestore.get(w)
+    if (saved) {
+      w.setBounds(saved)
+      maximizeRestore.delete(w)
+    } else {
+      maximizeRestore.set(w, w.getBounds())
+      w.setBounds(screen.getDisplayMatching(w.getBounds()).workArea)
+    }
   })
   ipcMain.handle('win:close', (e) => BrowserWindow.fromWebContents(e.sender)?.close())
 }

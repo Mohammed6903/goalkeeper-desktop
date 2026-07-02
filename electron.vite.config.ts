@@ -18,7 +18,10 @@ export default defineConfig({
     build: {
       rollupOptions: {
         input: './electron/preload.ts',
-        output: { format: 'cjs', entryFileNames: '[name].js' },
+        // Emit .cjs (not .js) so the CommonJS preload isn't misparsed as ESM
+        // under package.json "type":"module" — otherwise it fails to load in
+        // the packaged app and window.gk is never exposed.
+        output: { format: 'cjs', entryFileNames: 'preload.cjs' },
       },
     },
   },

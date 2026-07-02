@@ -84,9 +84,13 @@ export class SqliteStore implements Store {
   }
 
   getTask(idOrSeq: string | number): Task | null {
-    const r = (typeof idOrSeq === 'number' || /^\d+$/.test(String(idOrSeq)))
-      ? this.db.prepare('SELECT data FROM tasks WHERE seq=?').get(Number(idOrSeq))
-      : this.db.prepare('SELECT data FROM tasks WHERE id=?').get(idOrSeq)
+    // Try id first, then fall back to seq for numeric refs — matching the Python
+    // store. (Routing all-digit refs to seq first breaks lookups for the ~2% of
+    // 8-hex-char ids that happen to be all digits.)
+    let r = this.db.prepare('SELECT data FROM tasks WHERE id=?').get(String(idOrSeq))
+    if (!r && /^\d+$/.test(String(idOrSeq))) {
+      r = this.db.prepare('SELECT data FROM tasks WHERE seq=?').get(Number(idOrSeq))
+    }
     return r ? taskSchema.parse(JSON.parse((r as any).data)) : null
   }
 

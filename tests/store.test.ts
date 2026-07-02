@@ -36,6 +36,15 @@ describe('SqliteStore', () => {
     expect(s.getTask(t.id)?.status).toBe('done')
     expect(s.listTasks(null, 'done')).toHaveLength(1)
   })
+  it('getTask finds an all-digit id (not misrouted to seq)', () => {
+    // ~2% of 8-hex-char ids are all digits; those must resolve by id, not seq.
+    const t = s.addTask(taskSchema.parse({ id: '12345678', title: 'numeric-id', seq: s.nextSeq() }))
+    expect(s.getTask('12345678')?.id).toBe(t.id)
+    expect(s.getTask('12345678')?.title).toBe('numeric-id')
+    // seq lookup still works for a different task
+    const t2 = s.addTask(taskSchema.parse({ title: 'by-seq', seq: s.nextSeq() }))
+    expect(s.getTask(t2.seq)?.id).toBe(t2.id)
+  })
   it('events append and query', () => {
     s.logEvent(eventSchema.parse({ task_id: 'abc', kind: 'created' }))
     s.logEvent(eventSchema.parse({ task_id: 'xyz', kind: 'started' }))
