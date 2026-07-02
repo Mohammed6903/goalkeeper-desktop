@@ -1,13 +1,15 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import type { Task } from '@core/models'
 import { useNav } from './lib/nav'
 import TitleBar from './components/TitleBar'
 import Sidebar from './components/Sidebar'
 import { TaskForm } from './components/TaskForm'
+import { CommandPalette } from './components/CommandPalette'
 import { Dashboard } from './routes/Dashboard'
 import { ReadyView } from './routes/ReadyView'
 import { GoalView } from './routes/GoalView'
 import { ProjectView } from './routes/ProjectView'
+import { useAddGoal } from './hooks/useGk'
 
 // ---------------------------------------------------------------------------
 // Coming-soon placeholder panel (now / groom / settings)
@@ -38,12 +40,28 @@ function ComingSoon({ label }: { label: string }) {
 // ---------------------------------------------------------------------------
 
 export default function App() {
-  const { view } = useNav()
+  const { view, go } = useNav()
+  const addGoal = useAddGoal()
 
   // ── Global task-form state ──────────────────────────────────────────────
   const [formOpen, setFormOpen] = useState(false)
   const [editing, setEditing] = useState<Task | undefined>()
   const [formProject, setFormProject] = useState<string | null>(null)
+
+  // ── Command palette state ───────────────────────────────────────────────
+  const [paletteOpen, setPaletteOpen] = useState(false)
+
+  // Global ⌘K / Ctrl-K listener
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault()
+        setPaletteOpen((v) => !v)
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [])
 
   const openEdit = useCallback((task: Task) => {
     setEditing(task)
@@ -111,6 +129,19 @@ export default function App() {
         onOpenChange={handleFormOpenChange}
         task={editing}
         defaultProjectId={formProject}
+      />
+
+      {/* Command palette — ⌘K / Ctrl-K */}
+      <CommandPalette
+        open={paletteOpen}
+        onOpenChange={setPaletteOpen}
+        onNewTask={() => openNew()}
+        onNewGoal={() => {
+          // Create a placeholder goal then navigate to it
+          addGoal.mutateAsync({ title: 'New goal' }).then((goal) => {
+            go({ kind: 'goal', id: goal.id })
+          })
+        }}
       />
     </div>
   )
