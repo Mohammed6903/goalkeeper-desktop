@@ -12,11 +12,12 @@
  *   onEdit  — forwarded to each TaskRow for the Edit… context menu action
  */
 
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import { useVirtualizer } from '@tanstack/react-virtual'
 import { LayoutList, LayoutGrid, Inbox } from 'lucide-react'
 import type { Task } from '@core/models'
 import { TaskRow } from './TaskRow'
+import { Board } from './Board'
 
 // Row height in px — must be consistent so the virtualizer can calculate offsets.
 const ROW_HEIGHT = 44
@@ -88,8 +89,8 @@ function EmptyState() {
 export function TaskList({
   tasks,
   title,
-  view = 'list',
-  onView,
+  view: viewProp,
+  onView: onViewProp,
   onEdit,
 }: {
   tasks: Task[]
@@ -98,6 +99,13 @@ export function TaskList({
   onView?: (v: 'list' | 'board') => void
   onEdit?: (t: Task) => void
 }) {
+  // Internal state used when the parent doesn't supply controlled view/onView
+  const [internalView, setInternalView] = useState<'list' | 'board'>('list')
+
+  // If the parent controls view, use those; otherwise fall back to internal state
+  const effectiveView = viewProp ?? internalView
+  const handleView = onViewProp ?? setInternalView
+
   const scrollRef = useRef<HTMLDivElement>(null)
 
   const virtualizer = useVirtualizer({
@@ -137,11 +145,13 @@ export function TaskList({
           </span>
         </div>
 
-        <ViewToggle view={view} onView={onView} />
+        <ViewToggle view={effectiveView} onView={handleView} />
       </div>
 
       {/* ── Body ── */}
-      {tasks.length === 0 ? (
+      {effectiveView === 'board' ? (
+        <Board tasks={tasks} onEdit={onEdit} />
+      ) : tasks.length === 0 ? (
         <EmptyState />
       ) : (
         /* Scroll container — must have a fixed/capped height */
