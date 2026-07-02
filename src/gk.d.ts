@@ -23,6 +23,8 @@ export interface GkApi {
   minimizeWindow(): Promise<void>
   maximizeWindow(): Promise<void>
   closeWindow(): Promise<void>
+  setApiKey(v: string): Promise<void>
+  getApiKeyStatus(): Promise<boolean>
 }
 
 declare global {

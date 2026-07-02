@@ -3,6 +3,9 @@ import { join } from 'node:path'
 import { SqliteStore } from '@core/store/sqlite'
 import { Service } from '@core/service'
 import { ConfigStore } from '@core/config'
+import { setApiKey, hasApiKey } from './secret'
+
+export { readApiKey } from './secret'
 
 export function registerIpc(): void {
   const cfg = new ConfigStore(join(app.getPath('userData'), 'settings.json'))
@@ -28,6 +31,10 @@ export function registerIpc(): void {
   h('tasks:delete', (id: string) => svc.deleteTask(id))
   h('config:get', () => cfg.get())
   h('config:save', (c: any) => { cfg.save(c); svc = new Service(store, c.urgency) })
+
+  // Secret / API-key storage — uses safeStorage (OS keychain) via electron/secret.ts
+  h('secret:setKey', (value: string) => setApiKey(value))
+  h('secret:getKeyStatus', () => hasApiKey())
 
   // Window controls — need the event to resolve the sender's window
   ipcMain.handle('win:minimize', (e) => BrowserWindow.fromWebContents(e.sender)?.minimize())

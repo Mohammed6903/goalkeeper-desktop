@@ -22,4 +22,6 @@ contextBridge.exposeInMainWorld('gk', {
   minimizeWindow: () => ipcRenderer.invoke('win:minimize'),
   maximizeWindow: () => ipcRenderer.invoke('win:maximize'),
   closeWindow: () => ipcRenderer.invoke('win:close'),
+  setApiKey: (v: string) => ipcRenderer.invoke('secret:setKey', v),
+  getApiKeyStatus: () => ipcRenderer.invoke('secret:getKeyStatus'),
 })
