@@ -85,3 +85,19 @@ describe('urgency', () => {
     expect(urgency(t, { now: NOW, coeffs: C })).toBe(expected)
   })
 })
+
+describe('createdDate is wall-clock (timezone-independent)', () => {
+  // created 2026-04-01 (>30 days before NOW 2026-05-27) -> age caps at C.age, regardless of offset
+  it('naive timestamp', () => {
+    expect(urgency(task({ created_at: '2026-04-01T00:00:00' }), { now: NOW, coeffs: C })).toBe(C.age)
+  })
+  it('positive offset', () => {
+    expect(urgency(task({ created_at: '2026-04-01T02:00:00+05:30' }), { now: NOW, coeffs: C })).toBe(C.age)
+  })
+  it('negative offset near midnight does not shift the date', () => {
+    expect(urgency(task({ created_at: '2026-04-01T22:00:00-05:00' }), { now: NOW, coeffs: C })).toBe(C.age)
+  })
+  it('unparseable created_at contributes no age term', () => {
+    expect(urgency(task({ created_at: 'not-a-date' }), { now: NOW, coeffs: C })).toBe(0)
+  })
+})

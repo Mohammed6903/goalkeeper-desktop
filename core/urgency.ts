@@ -35,10 +35,12 @@ const dayDiff = (a: string, b: string): number => {
   return Math.round((db - da) / 86_400_000)
 }
 
-/** Extract the UTC calendar date (YYYY-MM-DD) from a full ISO-8601 datetime string. */
+/** Extract the wall-clock calendar date (YYYY-MM-DD) from an ISO-8601 datetime string.
+ * Matches Python's `fromisoformat().date()`: takes the leading YYYY-MM-DD directly from
+ * the string, ignoring any timezone offset, so the result is timezone-independent. */
 const createdDate = (t: Task): string | null => {
-  const d = new Date(t.created_at)
-  return isNaN(d.getTime()) ? null : d.toISOString().slice(0, 10)
+  const m = /^(\d{4}-\d{2}-\d{2})/.exec(t.created_at)
+  return m ? m[1] : null
 }
 
 export interface UrgencyCtx {
