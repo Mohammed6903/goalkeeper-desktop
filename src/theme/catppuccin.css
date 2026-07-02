@@ -1,0 +1,157 @@
+@import "tailwindcss";
+
+/* -----------------------------------------------------------------------
+   Catppuccin palette — Mocha (dark, default) and Latte (light)
+   Raw palette vars: --ctp-*
+   Semantic tokens: --bg, --surface, --surface-2, --text, --text-dim,
+                    --border, --accent
+   Tailwind v4 @theme map: --color-* → palette vars
+   ----------------------------------------------------------------------- */
+
+:root {
+  /* ── Catppuccin Mocha ── */
+  --ctp-rosewater: #f5e0dc;
+  --ctp-flamingo:  #f2cdcd;
+  --ctp-pink:      #f5c2e7;
+  --ctp-mauve:     #cba6f7;
+  --ctp-red:       #f38ba8;
+  --ctp-maroon:    #eba0ac;
+  --ctp-peach:     #fab387;
+  --ctp-yellow:    #f9e2af;
+  --ctp-green:     #a6e3a1;
+  --ctp-teal:      #94e2d5;
+  --ctp-sky:       #89dceb;
+  --ctp-sapphire:  #74c7ec;
+  --ctp-blue:      #89b4fa;
+  --ctp-lavender:  #b4befe;
+  --ctp-text:      #cdd6f4;
+  --ctp-subtext1:  #bac2de;
+  --ctp-subtext0:  #a6adc8;
+  --ctp-overlay2:  #9399b2;
+  --ctp-overlay1:  #7f849c;
+  --ctp-overlay0:  #6c7086;
+  --ctp-surface2:  #585b70;
+  --ctp-surface1:  #45475a;
+  --ctp-surface0:  #313244;
+  --ctp-base:      #1e1e2e;
+  --ctp-mantle:    #181825;
+  --ctp-crust:     #11111b;
+
+  /* ── Semantic tokens (Mocha) ── */
+  --bg:         var(--ctp-base);
+  --surface:    var(--ctp-mantle);
+  --surface-2:  var(--ctp-surface0);
+  --text:       var(--ctp-text);
+  --text-dim:   var(--ctp-subtext1);
+  --border:     var(--ctp-surface0);
+  --accent:     var(--ctp-mauve);
+}
+
+html.light {
+  /* ── Catppuccin Latte ── */
+  --ctp-rosewater: #dc8a78;
+  --ctp-flamingo:  #dd7878;
+  --ctp-pink:      #ea76cb;
+  --ctp-mauve:     #8839ef;
+  --ctp-red:       #d20f39;
+  --ctp-maroon:    #e64553;
+  --ctp-peach:     #fe640b;
+  --ctp-yellow:    #df8e1d;
+  --ctp-green:     #40a02b;
+  --ctp-teal:      #179299;
+  --ctp-sky:       #04a5e5;
+  --ctp-sapphire:  #209fb5;
+  --ctp-blue:      #1e66f5;
+  --ctp-lavender:  #7287fd;
+  --ctp-text:      #4c4f69;
+  --ctp-subtext1:  #5c5f77;
+  --ctp-subtext0:  #6c6f85;
+  --ctp-overlay2:  #7c7f93;
+  --ctp-overlay1:  #8c8fa1;
+  --ctp-overlay0:  #9ca0b0;
+  --ctp-surface2:  #acb0be;
+  --ctp-surface1:  #ccd0da;
+  --ctp-surface0:  #e6e9ef;
+  --ctp-base:      #eff1f5;
+  --ctp-mantle:    #e6e9ef;
+  --ctp-crust:     #dce0e8;
+
+  /* ── Semantic tokens (Latte) ── */
+  --bg:         var(--ctp-base);
+  --surface:    var(--ctp-mantle);
+  --surface-2:  var(--ctp-surface0);
+  --text:       var(--ctp-text);
+  --text-dim:   var(--ctp-subtext1);
+  --border:     var(--ctp-surface0);
+  --accent:     var(--ctp-mauve);
+}
+
+/* -----------------------------------------------------------------------
+   Tailwind v4 theme — exposes palette as utility classes
+   e.g. bg-base, text-text, text-mauve, border-surface-0, bg-mantle …
+   ----------------------------------------------------------------------- */
+@theme {
+  /* Palette accents */
+  --color-rosewater: var(--ctp-rosewater);
+  --color-flamingo:  var(--ctp-flamingo);
+  --color-pink:      var(--ctp-pink);
+  --color-mauve:     var(--ctp-mauve);
+  --color-red:       var(--ctp-red);
+  --color-maroon:    var(--ctp-maroon);
+  --color-peach:     var(--ctp-peach);
+  --color-yellow:    var(--ctp-yellow);
+  --color-green:     var(--ctp-green);
+  --color-teal:      var(--ctp-teal);
+  --color-sky:       var(--ctp-sky);
+  --color-sapphire:  var(--ctp-sapphire);
+  --color-blue:      var(--ctp-blue);
+  --color-lavender:  var(--ctp-lavender);
+
+  /* Grayscale / structural */
+  --color-text:      var(--ctp-text);
+  --color-subtext:   var(--ctp-subtext1);
+  --color-overlay:   var(--ctp-overlay2);
+  --color-surface-0: var(--ctp-surface0);
+  --color-surface-1: var(--ctp-surface1);
+  --color-surface-2: var(--ctp-surface2);
+  --color-base:      var(--ctp-base);
+  --color-mantle:    var(--ctp-mantle);
+  --color-crust:     var(--ctp-crust);
+
+  /* Semantic aliases in Tailwind utility space */
+  --color-bg:        var(--bg);
+  --color-surface:   var(--surface);
+  --color-dim:       var(--text-dim);
+  --color-accent:    var(--accent);
+  --color-border:    var(--border);
+}
+
+/* -----------------------------------------------------------------------
+   Global body styles
+   ----------------------------------------------------------------------- */
+body {
+  background: var(--ctp-base);
+  color: var(--ctp-text);
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont,
+    'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.mono {
+  font-family: 'JetBrains Mono', 'JetBrainsMono', ui-monospace,
+    'Cascadia Code', 'Source Code Pro', Menlo, Monaco, Consolas,
+    'Courier New', monospace;
+}
+
+/* -----------------------------------------------------------------------
+   Electron drag-region helpers (used for frameless custom title bar)
+   ----------------------------------------------------------------------- */
+[data-drag] {
+  -webkit-app-region: drag;
+  user-select: none;
+}
+
+[data-no-drag] {
+  -webkit-app-region: no-drag;
+}
