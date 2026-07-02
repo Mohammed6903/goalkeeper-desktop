@@ -1,4 +1,4 @@
-import { ipcMain, app } from 'electron'
+import { ipcMain, app, BrowserWindow } from 'electron'
 import { join } from 'node:path'
 import { SqliteStore } from '@core/store/sqlite'
 import { Service } from '@core/service'
@@ -28,4 +28,12 @@ export function registerIpc(): void {
   h('tasks:delete', (id: string) => svc.deleteTask(id))
   h('config:get', () => cfg.get())
   h('config:save', (c: any) => { cfg.save(c); svc = new Service(store, c.urgency) })
+
+  // Window controls — need the event to resolve the sender's window
+  ipcMain.handle('win:minimize', (e) => BrowserWindow.fromWebContents(e.sender)?.minimize())
+  ipcMain.handle('win:maximize', (e) => {
+    const w = BrowserWindow.fromWebContents(e.sender)
+    if (w) w.isMaximized() ? w.unmaximize() : w.maximize()
+  })
+  ipcMain.handle('win:close', (e) => BrowserWindow.fromWebContents(e.sender)?.close())
 }

@@ -19,4 +19,7 @@ contextBridge.exposeInMainWorld('gk', {
   deleteTask: inv('tasks:delete'),
   getConfig: inv('config:get'),
   saveConfig: inv('config:save'),
+  minimizeWindow: () => ipcRenderer.invoke('win:minimize'),
+  maximizeWindow: () => ipcRenderer.invoke('win:maximize'),
+  closeWindow: () => ipcRenderer.invoke('win:close'),
 })

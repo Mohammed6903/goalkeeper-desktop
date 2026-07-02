@@ -20,6 +20,9 @@ export interface GkApi {
   deleteTask(id: string): Promise<void>
   getConfig(): Promise<AppConfig>
   saveConfig(c: AppConfig): Promise<void>
+  minimizeWindow(): Promise<void>
+  maximizeWindow(): Promise<void>
+  closeWindow(): Promise<void>
 }
 
 declare global {
