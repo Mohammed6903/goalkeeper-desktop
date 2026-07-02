@@ -21,6 +21,7 @@
 
 import { useEffect, useState } from 'react'
 import * as Dialog from '@radix-ui/react-dialog'
+import { motion, AnimatePresence } from 'framer-motion'
 import { Sparkles, X, ChevronDown, ChevronRight } from 'lucide-react'
 import { toast } from 'sonner'
 import type { Goal } from '@core/models'
@@ -324,9 +325,26 @@ export function DecomposeSheet({
 
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
-      <Dialog.Portal>
-        <Dialog.Overlay style={overlayStyle} />
-        <Dialog.Content style={contentStyle} aria-describedby={undefined}>
+      <AnimatePresence>
+      {open && (
+      <Dialog.Portal forceMount>
+        <Dialog.Overlay asChild>
+          <motion.div
+            style={overlayStyle}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.15 }}
+          />
+        </Dialog.Overlay>
+        <Dialog.Content asChild aria-describedby={undefined}>
+        <motion.div
+          style={contentStyle}
+          initial={{ opacity: 0, scale: 0.97, y: 8 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.97, y: 8 }}
+          transition={{ duration: 0.18, ease: 'easeOut' }}
+        >
           {/* Header */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <Sparkles size={18} color="var(--ctp-yellow)" />
@@ -556,8 +574,11 @@ export function DecomposeSheet({
               </button>
             </div>
           )}
+        </motion.div>
         </Dialog.Content>
       </Dialog.Portal>
+      )}
+      </AnimatePresence>
     </Dialog.Root>
   )
 }

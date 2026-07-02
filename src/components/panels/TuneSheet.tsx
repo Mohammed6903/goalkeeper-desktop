@@ -9,6 +9,7 @@
 
 import { useState } from 'react'
 import * as Dialog from '@radix-ui/react-dialog'
+import { motion, AnimatePresence } from 'framer-motion'
 import { CheckCircle, XCircle, TrendingUp, RefreshCw, X } from 'lucide-react'
 import { toast } from 'sonner'
 import { num } from '@core/llm/schemas'
@@ -178,9 +179,26 @@ export function TuneSheet({
 
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
-      <Dialog.Portal>
-        <Dialog.Overlay style={overlayStyle} />
-        <Dialog.Content style={contentStyle} aria-describedby={undefined}>
+      <AnimatePresence>
+      {open && (
+      <Dialog.Portal forceMount>
+        <Dialog.Overlay asChild>
+          <motion.div
+            style={overlayStyle}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.15 }}
+          />
+        </Dialog.Overlay>
+        <Dialog.Content asChild aria-describedby={undefined}>
+        <motion.div
+          style={contentStyle}
+          initial={{ opacity: 0, scale: 0.97, y: 8 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.97, y: 8 }}
+          transition={{ duration: 0.18, ease: 'easeOut' }}
+        >
           {/* Header */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <TrendingUp size={18} color="var(--ctp-peach)" />
@@ -375,8 +393,11 @@ export function TuneSheet({
               Click <strong>Run tune</strong> to get AI suggestions for your urgency weights.
             </p>
           )}
+        </motion.div>
         </Dialog.Content>
       </Dialog.Portal>
+      )}
+      </AnimatePresence>
     </Dialog.Root>
   )
 }

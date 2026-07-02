@@ -12,6 +12,7 @@ import { useScore, useReady, useGoals, useProjects } from '../hooks/useGk'
 import { TaskRow } from '../components/TaskRow'
 import { UrgencyBadge } from '../components/UrgencyBadge'
 import { NowPanel } from '../components/panels/NowPanel'
+import { Skeleton, SkeletonList } from '../components/Skeleton'
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -142,9 +143,11 @@ export function Dashboard({
   onEdit: (t: Task) => void
   onNew: () => void
 }) {
-  const { data: scoredTasks = [] } = useScore()
-  const { data: readyTasks = [] } = useReady()
-  const { data: goals = [] } = useGoals()
+  const { data: scoredTasks = [], isLoading: scoreLoading } = useScore()
+  const { data: readyTasks = [], isLoading: readyLoading } = useReady()
+  const { data: goals = [], isLoading: goalsLoading } = useGoals()
+
+  const isLoading = scoreLoading || readyLoading || goalsLoading
 
   // Stats derived from scored tasks (open work)
   const today = new Date().toISOString().slice(0, 10)
@@ -268,9 +271,13 @@ export function Dashboard({
               </span>
             </div>
             <div style={{ padding: '6px 4px' }}>
-              {top5Ready.length === 0 ? (
-                <p style={{ margin: 0, padding: '12px 16px', fontSize: 12, color: 'var(--text-dim)', textAlign: 'center' }}>
-                  No ready tasks
+              {readyLoading ? (
+                <div style={{ padding: '4px 8px' }}>
+                  <SkeletonList n={4} />
+                </div>
+              ) : top5Ready.length === 0 ? (
+                <p style={{ margin: 0, padding: '16px 16px', fontSize: 12, color: 'var(--text-dim)', textAlign: 'center' }}>
+                  You're all caught up ✦
                 </p>
               ) : (
                 top5Ready.map((t) => (
@@ -281,7 +288,7 @@ export function Dashboard({
           </div>
 
           {/* Goals progress */}
-          {goals.length > 0 && (
+          {(goalsLoading || goals.length > 0) && (
             <div
               style={{
                 background: 'var(--surface)',
@@ -299,14 +306,22 @@ export function Dashboard({
                 <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--text)' }}>Goals</span>
               </div>
               <div style={{ padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: 12 }}>
-                {goals.map((goal) => (
-                  <GoalProgressRow
-                    key={goal.id}
-                    goalId={goal.id}
-                    title={goal.title}
-                    allTasks={allScoredTasks}
-                  />
-                ))}
+                {goalsLoading ? (
+                  <>
+                    <Skeleton width="70%" height={12} />
+                    <Skeleton width="50%" height={12} />
+                    <Skeleton width="60%" height={12} />
+                  </>
+                ) : (
+                  goals.map((goal) => (
+                    <GoalProgressRow
+                      key={goal.id}
+                      goalId={goal.id}
+                      title={goal.title}
+                      allTasks={allScoredTasks}
+                    />
+                  ))
+                )}
               </div>
             </div>
           )}

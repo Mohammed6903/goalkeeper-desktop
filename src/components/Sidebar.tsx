@@ -294,10 +294,25 @@ export default function Sidebar() {
             ))}
             {goals.length === 0 && !addingGoal && (
               <p
-                className="px-1 py-2 text-center text-xs"
-                style={{ color: 'var(--text-dim)' }}
+                className="px-2 py-3 text-center text-xs"
+                style={{ color: 'var(--text-dim)', lineHeight: 1.5 }}
               >
-                No goals yet
+                No goals yet — press{' '}
+                <button
+                  onClick={() => setAddingGoal(true)}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    padding: 0,
+                    color: 'var(--accent)',
+                    fontSize: 'inherit',
+                    cursor: 'pointer',
+                    fontWeight: 600,
+                  }}
+                >
+                  +
+                </button>{' '}
+                to add one
               </p>
             )}
           </div>

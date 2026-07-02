@@ -485,6 +485,27 @@ function UrgencySection({ config, saveConfig }: { config: AppConfig; saveConfig:
 // ---------------------------------------------------------------------------
 
 function DataSection() {
+  const [importing, setImporting] = useState(false)
+
+  async function handleImport() {
+    setImporting(true)
+    try {
+      const result = await window.gk.importLegacy()
+      if (result === null) {
+        toast('No legacy database found — nothing to import.')
+      } else {
+        toast.success(
+          `Imported ${result.goals} goal(s), ${result.projects} project(s), ${result.tasks} task(s)` +
+            (result.skipped > 0 ? ` · ${result.skipped} skipped (already exist)` : ''),
+        )
+      }
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : String(err))
+    } finally {
+      setImporting(false)
+    }
+  }
+
   return (
     <div style={sectionCard}>
       <h3 style={sectionTitle}>
@@ -528,20 +549,33 @@ function DataSection() {
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
         <label style={labelStyle}>Import legacy data</label>
+        <p style={hintStyle}>
+          Import goals, projects and tasks from an existing GoalKeeper CLI{' '}
+          <code
+            style={{
+              color: 'var(--ctp-teal)',
+              background: 'color-mix(in srgb, var(--ctp-teal) 10%, transparent)',
+              borderRadius: 3,
+              padding: '1px 5px',
+            }}
+          >
+            goalkeeper.db
+          </code>
+          {' '}found in your home directory or the default CLI data path.
+          Existing records are skipped safely.
+        </p>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <button
             style={{
               ...btnGhost,
-              cursor: 'not-allowed',
-              opacity: 0.5,
+              opacity: importing ? 0.6 : 1,
+              cursor: importing ? 'not-allowed' : 'pointer',
             }}
-            disabled
+            disabled={importing}
+            onClick={() => void handleImport()}
           >
-            Import legacy data…
+            {importing ? 'Importing…' : 'Import legacy data…'}
           </button>
-          <span style={{ fontSize: 11, color: 'var(--text-dim)' }}>
-            Available in the next update (Task 10)
-          </span>
         </div>
       </div>
     </div>
