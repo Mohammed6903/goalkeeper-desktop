@@ -11,6 +11,7 @@ import type { Task } from '@core/models'
 import { useScore, useReady, useGoals, useProjects } from '../hooks/useGk'
 import { TaskRow } from '../components/TaskRow'
 import { UrgencyBadge } from '../components/UrgencyBadge'
+import { NowPanel } from '../components/panels/NowPanel'
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -204,13 +205,13 @@ export function Dashboard({
 
       {/* ── Body: two columns ── */}
       <div style={{ display: 'flex', gap: 16, flex: 1, minHeight: 0 }}>
-        {/* Left column: Now placeholder */}
+        {/* Left column: Now panel */}
         <div
           style={{
-            flex: '0 0 280px',
+            flex: '0 0 320px',
             display: 'flex',
             flexDirection: 'column',
-            gap: 12,
+            minHeight: 0,
           }}
         >
           <div
@@ -218,32 +219,14 @@ export function Dashboard({
               background: 'var(--surface)',
               border: '1px solid var(--border)',
               borderRadius: 10,
-              padding: '16px',
+              overflow: 'hidden',
               display: 'flex',
               flexDirection: 'column',
-              gap: 10,
+              flex: 1,
+              minHeight: 0,
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <span style={{ fontSize: 16 }}>✦</span>
-              <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--text)' }}>Now</span>
-            </div>
-            <p style={{ margin: 0, fontSize: 12, color: 'var(--text-dim)', lineHeight: 1.5 }}>
-              LLM suggestions coming in Task 9.
-            </p>
-            <div
-              style={{
-                borderRadius: 6,
-                background: `color-mix(in srgb, var(--ctp-mauve) 8%, transparent)`,
-                border: `1px dashed color-mix(in srgb, var(--ctp-mauve) 30%, transparent)`,
-                padding: '10px 14px',
-                fontSize: 12,
-                color: `color-mix(in srgb, var(--ctp-mauve) 70%, var(--text-dim))`,
-                fontStyle: 'italic',
-              }}
-            >
-              Focus suggestions will appear here once the LLM integration is wired up.
-            </div>
+            <NowPanel />
           </div>
         </div>
 
