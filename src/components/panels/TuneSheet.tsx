@@ -11,6 +11,7 @@ import { useState } from 'react'
 import * as Dialog from '@radix-ui/react-dialog'
 import { CheckCircle, XCircle, TrendingUp, RefreshCw, X } from 'lucide-react'
 import { toast } from 'sonner'
+import { num } from '@core/llm/schemas'
 import type { DraftCoeffDelta, TuneResult } from '@core/llm/schemas'
 import { useConfig, useSaveConfig } from '../../hooks/useGk'
 
@@ -21,13 +22,6 @@ import { useConfig, useSaveConfig } from '../../hooks/useGk'
 function isNoKeyError(err: unknown): boolean {
   const msg = err instanceof Error ? err.message : String(err)
   return msg.includes('NoApiKey') || msg.toLowerCase().includes('api key')
-}
-
-function num(s: string): number | null {
-  const trimmed = String(s).trim()
-  if (trimmed === '') return null
-  const v = parseFloat(trimmed)
-  return isNaN(v) ? null : v
 }
 
 // ---------------------------------------------------------------------------

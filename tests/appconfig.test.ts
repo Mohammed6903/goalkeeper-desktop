@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { ConfigStore } from '@core/config'
+import { ConfigStore } from '@core/config-store'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { rmSync, writeFileSync } from 'node:fs'

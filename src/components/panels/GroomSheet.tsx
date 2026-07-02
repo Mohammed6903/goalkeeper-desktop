@@ -17,6 +17,7 @@
 import { useState } from 'react'
 import { CheckCircle, XCircle, Scissors, Tag, Clock, ArrowUpDown, AlertTriangle, GitMerge, Wand2, RefreshCw } from 'lucide-react'
 import { toast } from 'sonner'
+import { coercePriority } from '@core/llm/schemas'
 import type { DraftChangeOp, GroomResult } from '@core/llm/schemas'
 import {
   useModifyTask,
@@ -32,14 +33,6 @@ import {
 function isNoKeyError(err: unknown): boolean {
   const msg = err instanceof Error ? err.message : String(err)
   return msg.includes('NoApiKey') || msg.toLowerCase().includes('api key')
-}
-
-function coercePriority(s: string): 'high' | 'medium' | 'low' | 'none' {
-  const lower = String(s).trim().toLowerCase()
-  const valid = ['high', 'medium', 'low', 'none'] as const
-  return (valid as readonly string[]).includes(lower)
-    ? (lower as 'high' | 'medium' | 'low' | 'none')
-    : 'none'
 }
 
 function opIcon(op: string) {

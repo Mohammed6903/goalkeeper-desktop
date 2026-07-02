@@ -24,6 +24,7 @@ import * as Dialog from '@radix-ui/react-dialog'
 import { Sparkles, X, ChevronDown, ChevronRight } from 'lucide-react'
 import { toast } from 'sonner'
 import type { Goal } from '@core/models'
+import { num, asInt, coercePriority } from '@core/llm/schemas'
 import type { DraftPlan, DraftProject, DraftTask } from '@core/llm/schemas'
 import { useAddProject, useAddTask, useModifyTask } from '../../hooks/useGk'
 import { useNav } from '../../lib/nav'
@@ -35,26 +36,6 @@ import { useNav } from '../../lib/nav'
 function isNoKeyError(err: unknown): boolean {
   const msg = err instanceof Error ? err.message : String(err)
   return msg.includes('NoApiKey') || msg.toLowerCase().includes('api key')
-}
-
-function num(s: string): number | null {
-  const trimmed = String(s).trim()
-  if (trimmed === '') return null
-  const v = parseFloat(trimmed)
-  return isNaN(v) ? null : v
-}
-
-function asInt(s: string): number | null {
-  const v = num(s)
-  return v !== null ? Math.trunc(v) : null
-}
-
-function coercePriority(s: string): 'high' | 'medium' | 'low' | 'none' {
-  const lower = String(s).trim().toLowerCase()
-  const valid = ['high', 'medium', 'low', 'none'] as const
-  return (valid as readonly string[]).includes(lower)
-    ? (lower as 'high' | 'medium' | 'low' | 'none')
-    : 'none'
 }
 
 /** today + N days → YYYY-MM-DD, or null */

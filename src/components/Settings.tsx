@@ -12,31 +12,9 @@ import { useState, useEffect, useCallback } from 'react'
 import { toast } from 'sonner'
 import { Sun, Moon, Key, Brain, Sliders, Database, TrendingUp, RotateCcw, Save, HardDrive } from 'lucide-react'
 import { useConfig, useSaveConfig } from '../hooks/useGk'
+import { defaultUrgencyConfig } from '@core/config'
 import type { UrgencyConfig, AppConfig } from '@core/config'
 import { TuneSheet } from './panels/TuneSheet'
-
-// ---------------------------------------------------------------------------
-// Defaults — mirrored from core/config.ts defaultUrgencyConfig() so we don't
-// import node:fs-backed code into the renderer bundle.
-// ---------------------------------------------------------------------------
-
-function defaultUrgencyConfig(): UrgencyConfig {
-  return {
-    due: 12,
-    due_horizon_days: 14,
-    overdue: 6,
-    priority_high: 6,
-    priority_medium: 3.9,
-    priority_low: 1.8,
-    age: 2,
-    age_horizon_days: 30,
-    active: 4,
-    blocking: 5,
-    blocked: -5,
-    tag_next: 8,
-    goal_priority: 3,
-  }
-}
 
 // ---------------------------------------------------------------------------
 // Coefficient metadata — human labels for all 13 fields
