@@ -143,7 +143,7 @@ export default function App() {
 
   return (
     <div
-      className="flex h-screen flex-col overflow-hidden"
+      className="flex h-full flex-col overflow-hidden"
       style={{ background: 'var(--bg)', color: 'var(--text)' }}
     >
       <TitleBar />

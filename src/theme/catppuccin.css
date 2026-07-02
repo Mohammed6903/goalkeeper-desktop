@@ -129,6 +129,22 @@ html.light {
 /* -----------------------------------------------------------------------
    Global body styles
    ----------------------------------------------------------------------- */
+
+/* Pin the app to exactly the window viewport: only inner panes scroll, and
+   the window itself never grows a stray scrollbar or pushes content off-screen. */
+html,
+body,
+#root {
+  height: 100%;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
 body {
   background: var(--ctp-base);
   color: var(--ctp-text);
@@ -136,6 +152,28 @@ body {
     'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Thin, Catppuccin-themed scrollbars in place of the chunky default ones. */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--ctp-surface1, #45475a);
+  border-radius: 8px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--ctp-surface2, #585b70);
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-corner {
+  background: transparent;
 }
 
 .mono {

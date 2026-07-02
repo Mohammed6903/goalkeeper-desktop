@@ -7,7 +7,7 @@
  */
 
 import { GoogleGenAI } from '@google/genai'
-import type { ZodType } from 'zod'
+import { z, type ZodType } from 'zod'
 
 // ---------------------------------------------------------------------------
 // Errors
@@ -68,10 +68,23 @@ export class GeminiClient {
     const ai = new GoogleGenAI({ apiKey: this.apiKey })
     const modelId = opts?.fast ? this.fastModel : this.model
 
+    // Constrain the model to the exact object shape — otherwise Gemini is free
+    // to return e.g. a bare JSON array, which then fails schema validation.
+    let responseJsonSchema: Record<string, unknown> | undefined
+    try {
+      responseJsonSchema = z.toJSONSchema(schema) as Record<string, unknown>
+      delete responseJsonSchema.$schema // Gemini rejects the meta key
+    } catch {
+      responseJsonSchema = undefined // fall back to unconstrained JSON
+    }
+
     const response = await ai.models.generateContent({
       model: modelId,
       contents: prompt,
-      config: { responseMimeType: 'application/json' },
+      config: {
+        responseMimeType: 'application/json',
+        ...(responseJsonSchema ? { responseJsonSchema } : {}),
+      },
     })
 
     const raw = response.text
@@ -89,6 +102,12 @@ export class GeminiClient {
       )
     }
 
-    return schema.parse(parsed)
+    try {
+      return schema.parse(parsed)
+    } catch (err) {
+      throw new GeminiParseError(
+        `Gemini response did not match the expected shape: ${(err as Error).message}`,
+      )
+    }
   }
 }
